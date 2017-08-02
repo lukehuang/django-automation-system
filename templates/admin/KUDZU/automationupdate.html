@@ -1,0 +1,178 @@
+{% extends "admin/base.html" %}
+{% block title %}Reports{% endblock %}
+{% load i18n %}
+{% load static %}
+{% load staticfiles %}
+{% load render_table from django_tables2 %}
+
+
+{% block extrastyle %}
+	
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<style>
+.propertyName
+{
+color:#309bbf;
+font-weight:bold;
+font-size:20px;
+}
+p
+{
+padding-bottom:15px;
+padding-top:10px;
+font-size:13px;
+line-height:15px;
+}
+.noChange:hover, .submitChanges:hover {
+    background-image: linear-gradient(#5e5e5e, #444444) !important;    
+    background-color:#5e5e5e !important;
+    border: 1px solid #373737 !important;  
+    color: #fff !important;  
+}
+
+input[type="submit"]
+{
+    background-image: linear-gradient(#5e5e5e, #444444) !important;    
+    background-color:#5e5e5e !important;
+    border: 1px solid #373737 !important;  
+    color: #fff !important;  
+}
+
+input[type="submit"],input[type="button"] {
+    margin: 0 !important;
+    padding: 2px 5px !important;
+    height: 25px !important;
+    font-family: Arial,sans-serif !important;
+    font-size: 12px !important;
+    line-height: 14px !important;
+    font-weight: bold !important;
+    color: #555 !important;
+    border: 1px solid #ccc !important;
+    -moz-border-radius: 3px !important;
+    -webkit-border-radius: 3px !important;
+    border-radius: 3px !important;
+    background: #fdfdfd !important;
+    -moz-box-sizing: border-box !important;
+    -webkit-box-sizing: border-box !important;
+    box-sizing: border-box !important;
+    -moz-box-shadow: inset 0 1px 3px 0 #eee !important;
+    -webkit-box-shadow: inset 0 1px 3px 0 #eee !important;
+    box-shadow: inset 0 1px 3px 0 #eee !important;
+    color: #fff !important;
+    border: 1px solid #2b8aab !important;
+    vertical-align: middle !important;
+    background-image: linear-gradient(#4fb2d3,#309bbf) !important;
+}
+
+tbody tr td:last-child,thead tr th:last-child {
+    display:none;
+}
+</style>
+
+<script type="text/javascript" charset="utf-8">
+
+    
+    (function($) {
+        $(document).ready(function() {
+            grappelli.initDateAndTimePicker();
+            var myVar = setInterval(function(){ myTimer() }, 1000);
+            function myTimer() {                
+                $('.vDateField').each(function( index ) {                    
+                    if($( this ).val()!=''){                    
+                        $('.defaultsubmit').addClass('submitChanges')
+                        $('.defaultsubmit').removeAttr("disabled")
+                        clearInterval(myVar);
+                    }
+                });        
+            }
+            $('.noChange').click(function(){
+                $('.defaultsubmit').addClass('submitChanges')
+                $('.defaultsubmit').removeAttr("disabled")
+            })
+            $('.projectStatus').change(function(){
+                $('.defaultsubmit').addClass('submitChanges')
+                $('.defaultsubmit').removeAttr("disabled")
+            })
+            $("form").submit(function(e){
+                if(!$('.defaultsubmit').hasClass('submitChanges')){
+                    alert("Please update the project status and completion dates")
+                    e.preventDefault();
+                }
+            });
+            
+        });
+    })(grp.jQuery);
+</script>
+<h1>Update Project Status for <span class="propertyName">{{property}}</span></h1>
+<p>
+Please review and update the status of your Playbook projects using the fields below. <br/>
+If your <strong>project statuses have not changed</strong>, please click the "No Change" button at the bottom of the form and then click "Submit" button. <br/>
+If your <strong>project status has changed</strong>, please make the necessary updates in the form below and then click the "Submit" button.
+<br/>
+If you have any questions, would like to update project information not available on this online form, or would like to add a new project to your Playbook, please email <a href="mailto:PRPIplaybooks@jdmgmt.com">PRPIplaybooks@jdmgmt.com</a>.
+</p>
+
+
+<form action="" id="status" method="POST">
+    {% csrf_token %}  
+    {% block project %}  
+    <div class="table-container">
+    <table>
+                {% block project.thead %}            
+                <thead>                
+                    <tr class="primary">
+                    {% for column in project.columns %}
+                        <th>{{ column.header|title }}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                {% endblock project.thead %}
+                
+                
+                {% block project.tbody %}
+                <tbody>
+                    {% for row in project.page.object_list|default:project.rows %} 
+                      {% block project.tbody.row %}
+                      <tr {{ row.attrs.as_html }}>
+                          {% for column, cell in row.items %}
+                              <td {{ column.attrs.td.as_html }} class="grp-td">
+                               {{ cell }}
+                              </td>
+                          {% endfor %}
+                      </tr>
+                      {% endblock project.tbody.row %}
+                        
+                      {% if project.empty_text %}
+                      {% block project.tbody.empty_text %}
+                      <tr><td colspan="{{ project.columns|length }}">{{ project.empty_text }}</td></tr>
+                      {% endblock project.tbody.empty_text %}
+                      {% endif %}
+                    {% endfor %}
+                </tbody>
+                {% endblock project.tbody %}
+                
+                
+                <tfoot>
+                    <tr>
+                        <td colspan="10" style="text-align:right"> 
+                        <input type="button"  value="No Change" class="noChange" />
+                        <input type="submit"  value="Submit" class="defaultsubmit" />
+                        </td>                        
+                    </tr>
+                </tfoot>
+                 
+    
+                
+    </table>
+    </div>    
+    {% endblock project %}
+    
+    
+</form>
+{% endblock %}

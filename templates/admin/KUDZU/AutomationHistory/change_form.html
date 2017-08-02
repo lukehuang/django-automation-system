@@ -1,0 +1,14 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls admin_static admin_modify %}
+
+{% block object-tools-items %}
+
+        <script type="text/javascript">
+            (function($) {            
+                $(document).ready(function() {
+                    $('.grp-submit-row').hide()
+                });
+            })(grp.jQuery);           
+        </script>
+        {% if has_absolute_url %}<li><a href="{% url 'admin:view_on_site' content_type_id original.pk %}" class="viewsitelink">{% trans "View on site" %}</a></li>{% endif%}
+{% endblock %}
